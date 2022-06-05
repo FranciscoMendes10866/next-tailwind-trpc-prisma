@@ -42,9 +42,9 @@ export const serverRouter = trpc
       const { ids } = input;
 
       return await prisma.groceryList.deleteMany({
-        where: { 
-          id: { in:  ids}
-         },
+        where: {
+          id: { in: ids },
+        },
       });
     },
   });
