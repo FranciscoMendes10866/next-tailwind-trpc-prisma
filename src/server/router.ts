@@ -1,20 +1,21 @@
 import * as trpc from "@trpc/server";
 import { z } from "zod";
-import { prisma } from "@/utils/prisma";
+
+import { Context } from "./context";
 
 export const serverRouter = trpc
-  .router()
+  .router<Context>()
   .query("findAll", {
-    resolve: async () => {
-      return await prisma.groceryList.findMany();
+    resolve: async ({ ctx }) => {
+      return await ctx.prisma.groceryList.findMany();
     },
   })
   .mutation("insertOne", {
     input: z.object({
       title: z.string(),
     }),
-    resolve: async ({ input }) => {
-      return await prisma.groceryList.create({
+    resolve: async ({ input, ctx }) => {
+      return await ctx.prisma.groceryList.create({
         data: { title: input.title },
       });
     },
@@ -25,10 +26,10 @@ export const serverRouter = trpc
       title: z.string(),
       checked: z.boolean(),
     }),
-    resolve: async ({ input }) => {
+    resolve: async ({ input, ctx }) => {
       const { id, ...rest } = input;
 
-      return await prisma.groceryList.update({
+      return await ctx.prisma.groceryList.update({
         where: { id },
         data: { ...rest },
       });
@@ -38,10 +39,10 @@ export const serverRouter = trpc
     input: z.object({
       ids: z.number().array(),
     }),
-    resolve: async ({ input }) => {
+    resolve: async ({ input, ctx }) => {
       const { ids } = input;
 
-      return await prisma.groceryList.deleteMany({
+      return await ctx.prisma.groceryList.deleteMany({
         where: {
           id: { in: ids },
         },
